@@ -1,24 +1,25 @@
 package main
 
 import (
-	"net/http"
+	config "Server/Config"
+	"Server/controller"
 
 	"github.com/gin-gonic/gin"
 )
 
 func RouteInit() *gin.Engine {
-	
-	gin.SetMode(gin.ReleaseMode)
+	//设置服务器模式
+	gin.SetMode(config.Configuration["server"].(map[string]interface{})["mode"].(string))
+	//
 	server := gin.Default()
+	//
+	server.GET("/test", func(ctx *gin.Context) {
+		ctx.JSON(200, map[string]string{"msg": "ok"})
+	})
 	//配置路由
 	user := server.Group("/user")
 	{
-		user.GET("/b/a", func(ctx *gin.Context) {
-			ctx.JSON(http.StatusOK, gin.H{"msg": "a"})
-		})
-		user.GET("/b", func(ctx *gin.Context) {
-			ctx.JSON(http.StatusOK, gin.H{"msg": "b"})
-		})
+		user.POST("/regist", controller.AddUser)
 	}
 	//
 	return server

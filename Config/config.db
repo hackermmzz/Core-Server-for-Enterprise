@@ -1,0 +1,12 @@
+#服务器配置文件
+{
+    "server":{
+        "mode":"debug"      #设置服务器当前运行的模式debug or release
+    },
+    "database":{
+        "user":"root",      #用户
+        "password":"01190650asd",   #密码
+        "database":"SF",   #数据库名
+        "address":"127.0.0.1"   #地址
+    }
+}
