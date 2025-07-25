@@ -7,6 +7,7 @@ import (
 )
 
 func RouteInit() *gin.Engine {
+	
 	gin.SetMode(gin.ReleaseMode)
 	server := gin.Default()
 	//配置路由
