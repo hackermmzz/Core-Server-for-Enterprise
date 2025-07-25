@@ -1,3 +1,3 @@
-module github.com/hackermmzz/Core-Server-for-Enterprise.git
+module database
 
 go 1.24.5
