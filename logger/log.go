@@ -1,9 +1,9 @@
-package main
+package logger
 
-import(
+import (
 	"fmt"
 )
 
-func Log(str string){
+func Log(str string) {
 	fmt.Println(str)
 }

@@ -1,12 +1,29 @@
 #服务器配置文件
 {
     "server":{
-        "mode":"debug"      #设置服务器当前运行的模式debug or release
+        "mode":"debug",      #设置服务器当前运行的模式debug or release
+        "port":"2222"         #监听的端口
     },
     "database":{
         "user":"root",      #用户
         "password":"01190650asd",   #密码
         "database":"SF",   #数据库名
         "address":"127.0.0.1"   #地址
+    },
+    "service":{
+        "cookieExpire":{
+            "interval":5    #每隔5分钟检测一次cookie的过期情况
+        },
+        "verifyCodeSend":{
+            "host":"smtp.qq.com",
+            "port":465,
+            "email":"2049983474@qq.com",
+            "password":"eumlxuysimsrdjbf",
+            "name":"南京飞趣有限公司",
+            "interval":1
+        }
+    },
+    "Source":{
+        "directory":"Source"    #所有资源都在这个文件夹
     }
 }
