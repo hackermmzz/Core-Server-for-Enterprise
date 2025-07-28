@@ -4,7 +4,6 @@ import (
 	"Server/logger"
 	"crypto/tls"
 	"fmt"
-	"time"
 
 	"github.com/Workiva/go-datastructures/queue"
 	"gopkg.in/gomail.v2"
@@ -22,7 +21,6 @@ var sender *gomail.Dialer
 
 func VerifyCodeSendService(config map[string]interface{}) {
 	verifyCodeQueue = queue.New(1024)
-	interval := int(config["interval"].(float64))
 	email = config["email"].(string)
 	password := config["password"].(string)
 	name = config["name"].(string)
@@ -46,8 +44,6 @@ func VerifyCodeSendService(config map[string]interface{}) {
 				continue
 			}
 		}
-		//休眠
-		time.Sleep(time.Duration(interval * int(time.Second)))
 	}
 }
 

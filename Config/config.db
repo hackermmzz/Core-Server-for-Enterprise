@@ -2,7 +2,7 @@
 {
     "server":{
         "mode":"debug",      #设置服务器当前运行的模式debug or release
-        "port":"2222"         #监听的端口
+        "port":2222         #监听的端口
     },
     "database":{
         "user":"root",      #用户
@@ -12,15 +12,14 @@
     },
     "service":{
         "cookieExpire":{
-            "interval":5    #每隔5分钟检测一次cookie的过期情况
+            "interval":60    #每隔interval分钟检测一次cookie的过期情况
         },
         "verifyCodeSend":{
             "host":"smtp.qq.com",
             "port":465,
             "email":"2049983474@qq.com",
             "password":"eumlxuysimsrdjbf",
-            "name":"南京飞趣有限公司",
-            "interval":1
+            "name":"南京飞趣有限公司"
         }
     },
     "Source":{

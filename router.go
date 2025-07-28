@@ -2,16 +2,26 @@ package main
 
 import (
 	"Server/controller"
+	"Server/database"
 	"net/http"
+	"net/url"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
+var (
+	filterRoutePrefix = [...]string{"/api/user/login", "/api/user/regist", "/api/user/registVerifyCode", "/download"}
+)
+
+// 路由初始化
 func RouteInit(config map[string]interface{}) *gin.Engine {
 	//设置服务器模式
 	gin.SetMode(config["mode"].(string))
 	//
 	server := gin.Default()
+	//设置过滤器
+	setFilter(server)
 	//设置跨域
 	setCors(server)
 	//配置路由
@@ -51,18 +61,54 @@ func setCors(server *gin.Engine) {
 		}
 		//
 		ctx.Header("Access-Control-Allow-Origin", legal_origin)
-		ctx.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		ctx.Header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 		ctx.Header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
 		ctx.Header("Access-Control-Max-Age", "86400")
 		ctx.Header("Access-Control-Allow-Credentials", "true")
 
-		if ctx.Request.Header.Get("Method") == "OPTIONS" {
+		if ctx.Request.Method == "OPTIONS" {
 			ctx.JSON(http.StatusOK, nil)
 			return
 		}
 		ctx.Next()
 	})
+}
 
+// 设置过滤器
+func setFilter(server *gin.Engine) {
+	server.Use(func(ctx *gin.Context) {
+		//对指定路由不执行过滤操作
+		route := ctx.Request.URL.Path
+		if FilterDisable(route) {
+			ctx.Next()
+			return
+		}
+		//否则需要进行验证cookie
+		cookie := ctx.Request.Header.Get("cookie")
+		cookie, _ = url.QueryUnescape(cookie) //解码
+		//如果cookie不合法直接过滤掉
+		if !checkCookieLegal(cookie) {
+			ctx.Abort()
+			return
+		}
+		//
+		ctx.Next()
+	})
+}
+
+// 判断是否需要禁用过滤器
+func FilterDisable(route string) bool {
+	for _, s := range filterRoutePrefix {
+		if strings.HasPrefix(route, s) {
+			return true
+		}
+	}
+	return false
+}
+
+// 判断cookie是否合法
+func checkCookieLegal(cookie string) bool {
+	return database.CheckCookieExist(cookie)
 }
 
 // 检查指定origin是否跨域访问服务器

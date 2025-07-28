@@ -4,12 +4,22 @@ import (
 	service "Server/Service"
 	"Server/database"
 	"Server/tools"
+	"errors"
 	"net/http"
+	"regexp"
 	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
+)
+
+var (
+	emailRe        = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
+	emailMaxLen    = 50 //邮箱最大长度
+	passwordRe     = regexp.MustCompile(`^[a-zA-Z0-9@#_]+$`)
+	passwordMaxLen = 50 //密码最大长度
+	nicknameMaxLen = 50 //昵称最大长度
 )
 
 // 验证注册
@@ -45,12 +55,12 @@ func Regist(ctx *gin.Context) {
 		return
 	}
 	//检测账号 密码 昵称的合法性
-	if !CheckEmailLegal(email) {
-		tools.RespondACK(ctx, &tools.RespondMSG{Status: false, Msg: "邮箱格式不合法!"})
+	if err := CheckEmailLegal(email); err != nil {
+		tools.RespondACK(ctx, &tools.RespondMSG{Status: false, Msg: err.Error()})
 		return
 	}
-	if !CheckPasswordLegal(password) {
-		tools.RespondACK(ctx, &tools.RespondMSG{Status: false, Msg: "密码格式不合法!"})
+	if err := CheckPasswordLegal(password); err != nil {
+		tools.RespondACK(ctx, &tools.RespondMSG{Status: false, Msg: err.Error()})
 		return
 	}
 	if !CheckNickNameLegal(nickname) {
@@ -179,18 +189,37 @@ func EncryptPassword(password string) (string, error) {
 }
 
 // 检测账号的合法性
-func CheckEmailLegal(email string) bool {
-	return true
+
+func CheckEmailLegal(email string) error {
+	//长度不能超过emailMaxLen并且格式为A@B.C,只能为字母和数字
+	if len(email) > emailMaxLen {
+		return errors.New("邮箱长度不能超过" + strconv.Itoa(emailMaxLen))
+	} else {
+		match := passwordRe.MatchString(email)
+		if !match {
+			return errors.New("邮箱格式不正确")
+		}
+	}
+	return nil
 }
 
 // 检测密码的合法性
-func CheckPasswordLegal(password string) bool {
-	return true
+func CheckPasswordLegal(password string) error {
+	//长度不能超过emailMaxLen并且格式为A@B.C,只能为字母和数字
+	if len(password) > passwordMaxLen {
+		return errors.New("密码长度不能超过" + strconv.Itoa(passwordMaxLen))
+	} else {
+		match := emailRe.MatchString(password)
+		if !match {
+			return errors.New("密码格式不正确")
+		}
+	}
+	return nil
 }
 
 // 检查昵称的合法性
 func CheckNickNameLegal(nickname string) bool {
-	return len(nickname) <= 30
+	return len(nickname) <= nicknameMaxLen
 }
 
 // 检测原密码和加密后的密码是否匹配

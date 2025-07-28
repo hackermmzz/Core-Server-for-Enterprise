@@ -3,6 +3,7 @@ package main
 import (
 	config "Server/Config"
 	"fmt"
+	"strconv"
 )
 
 //
@@ -14,7 +15,8 @@ func ServerInit() {
 	server := RouteInit(serverConfig)
 	//监听
 	fmt.Println("服务器初始化成功!")
-	err := server.RunTLS(":"+serverConfig["port"].(string), "ssl/cert.pem", "ssl/key.pem")
+	port := int(serverConfig["port"].(float64))
+	err := server.RunTLS(":"+strconv.Itoa(port), "ssl/cert.pem", "ssl/key.pem")
 	if err != nil {
 		panic("服务器初始化错误:" + err.Error())
 	}
