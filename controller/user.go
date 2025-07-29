@@ -78,6 +78,7 @@ func Regist(ctx *gin.Context) {
 	usr.Email = email
 	usr.Password = encrpy_passwd
 	usr.NickName = user.NickName
+	usr.RegistDate = database.NewLocalTime()
 	err = database.AddUser(usr)
 	//
 	if err != nil {
@@ -85,7 +86,7 @@ func Regist(ctx *gin.Context) {
 		return
 	}
 	//
-	tools.RespondACK(ctx, &tools.RespondMSG{Status: true, Msg: "添加用户成功!"})
+	tools.RespondACK(ctx, &tools.RespondMSG{Status: true, Msg: "注册成功!"})
 }
 
 // 验证登录
@@ -121,6 +122,7 @@ func Login(ctx *gin.Context) {
 	var cookieInfo database.Cookie
 	cookieInfo.CookieValue = cookieValue
 	cookieInfo.Email = user.Email
+	cookieInfo.GenerateDate = database.NewLocalTime()
 	err = database.AddUserCookie(cookieInfo)
 	if err != nil {
 		tools.RespondACK(ctx, &tools.RespondMSG{Status: false, Msg: "添加cookie失败!"})
@@ -151,7 +153,7 @@ func RequestRegistVerifyCode(ctx *gin.Context) {
 	//随机生成验证码
 	code := GenerateRegistVerifyCode()
 	//存入数据库
-	verifyCode := &database.VerifyCode{Email: user.Email, Code: code, GenerateDate: nil, Usage: database.VerifyCode_Regist}
+	verifyCode := &database.VerifyCode{Email: user.Email, Code: code, GenerateDate: database.NewLocalTime(), Usage: database.VerifyCode_Regist}
 	err = database.AddVerifyCode(verifyCode)
 	if err != nil {
 		tools.RespondACK(ctx, &tools.RespondMSG{Status: false, Msg: "数据库异常!"})
@@ -195,7 +197,7 @@ func CheckEmailLegal(email string) error {
 	if len(email) > emailMaxLen {
 		return errors.New("邮箱长度不能超过" + strconv.Itoa(emailMaxLen))
 	} else {
-		match := passwordRe.MatchString(email)
+		match := emailRe.MatchString(email)
 		if !match {
 			return errors.New("邮箱格式不正确")
 		}
@@ -209,7 +211,7 @@ func CheckPasswordLegal(password string) error {
 	if len(password) > passwordMaxLen {
 		return errors.New("密码长度不能超过" + strconv.Itoa(passwordMaxLen))
 	} else {
-		match := emailRe.MatchString(password)
+		match := passwordRe.MatchString(password)
 		if !match {
 			return errors.New("密码格式不正确")
 		}
@@ -265,7 +267,9 @@ func checkRegistVerifyCodeIntervalLegal(email string) bool {
 		return true
 	}
 	//如果大于1分钟
-	if time.Time(*res.GenerateDate).Before(time.Now().Add(time.Duration(1 * time.Minute))) {
+	time0 := time.Time(*res.GenerateDate)
+	time1 := time.Now().UTC().Add(-1 * time.Minute)
+	if time0.Before(time1) {
 		return true
 	}
 	//

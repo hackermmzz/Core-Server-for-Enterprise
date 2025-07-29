@@ -1,7 +1,8 @@
 #服务器配置文件
+#注意,服务器所有使用到的时间均为UTC时区
 {
     "server":{
-        "mode":"debug",      #设置服务器当前运行的模式debug or release
+        "mode":"release",      #设置服务器当前运行的模式debug or release
         "port":2222         #监听的端口
     },
     "database":{

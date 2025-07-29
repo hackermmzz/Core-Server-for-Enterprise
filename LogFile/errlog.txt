@@ -1,0 +1,6 @@
+
+2025/07/29 21:58:09 /root/Core-Server-for-Enterprise/database/user.go:91 record not found
+[0.476ms] [rows:0] SELECT * FROM `users` WHERE email='2249983474@qq.com' ORDER BY `users`.`email` LIMIT 1
+
+2025/07/29 21:58:20 /root/Core-Server-for-Enterprise/database/user.go:91 record not found
+[0.355ms] [rows:0] SELECT * FROM `users` WHERE email='2249983474@qq.com' ORDER BY `users`.`email` LIMIT 1

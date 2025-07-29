@@ -9,16 +9,24 @@ import (
 // 定义时间结构体
 type LocalTime time.Time
 
+// 获取当前utc时间
+func NewLocalTime() *LocalTime {
+	cur_time := time.Now().UTC()
+	ret := &LocalTime{}
+	ret.Scan(cur_time)
+	return ret
+}
+
 // MarshalJSON JSON序列化时调用，转换为指定格式的字符串
 func (t *LocalTime) MarshalJSON() ([]byte, error) {
-	tTime := time.Time(*t)
+	tTime := time.Time(*t).UTC()
 	// 格式化为 "2006-01-02 15:04:05" 字符串
 	return []byte(fmt.Sprintf("\"%s\"", tTime.Format("2006-01-02 15:04:05"))), nil
 }
 
 // Value 数据库存储时调用，转换为time.Time类型
 func (t LocalTime) Value() (driver.Value, error) {
-	tTime := time.Time(t)
+	tTime := time.Time(t).UTC()
 	// 零值处理：如果是默认零时间，返回nil（数据库会存为NULL）
 	if tTime.IsZero() {
 		return nil, nil
@@ -31,17 +39,18 @@ func (t *LocalTime) Scan(v interface{}) error {
 	switch value := v.(type) {
 	case time.Time:
 		// 直接是time.Time类型，直接转换
-		*t = LocalTime(value)
+		*t = LocalTime(value.UTC())
 		return nil
 	case []byte:
 		// 数据库返回字节数组（最常见情况），转换为字符串后解析
 		timeStr := string(value)
+
 		// 解析字符串为time.Time（格式要与数据库存储的一致）
 		parsedTime, err := time.Parse("2006-01-02 15:04:05", timeStr)
 		if err != nil {
 			return fmt.Errorf("解析时间失败: %v, 原始值: %s", err, timeStr)
 		}
-		*t = LocalTime(parsedTime)
+		*t = LocalTime(parsedTime.UTC())
 		return nil
 	case string:
 		// 少数情况可能返回字符串，同样解析
@@ -49,7 +58,7 @@ func (t *LocalTime) Scan(v interface{}) error {
 		if err != nil {
 			return fmt.Errorf("解析时间失败: %v, 原始值: %s", err, value)
 		}
-		*t = LocalTime(parsedTime)
+		*t = LocalTime(parsedTime.UTC())
 		return nil
 	default:
 		// 不支持的类型
